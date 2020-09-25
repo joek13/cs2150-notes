@@ -73,7 +73,7 @@ In memory, an array consists of:
   - Needs to be copied element-by-element
 - Cannot be compared with ==
   - Won't do what you want it to do.
-  - Compares pointers
+  #- Compares pointers
 
 ...but `vector` has all of these.
 
@@ -83,11 +83,118 @@ int someInts[3];
   Here, the size is only used to set aside memory for the array.
   It's not stored anywhere.
   someInts is set to &someInts[0], the array's "base address."
+  Acts kind of like a "constant pointer." You can't reassign the pointer because that would prevent the compiler from deallocating the memory when the subroutine returns.
+  Size has to be known at compiletime.
 */
 
 int* someInts = new int[3];
 /*
   Declared dynamically.
-  Need to delete the array later.
+  Need to delete the array later, the onus is on the programmer.
 */
 ```
+
+#### In memory
+How do we calculate the location in memory for a given index?
+
+```
+&someInt[i] = {addr of someInts} + (sizeof(int) * i)
+```
+- Base address plus struct size times index
+  - If you try to access something larger than the array itself, you're reading some memory address *way* out there. Maybe you get a segfault (if you're lucky)
+
+Want bound checking? use a `vector`
+
+#### Operations on arrays
+`someInts = someOtherArray;` illegal
+  - Array base addresses are considered constant
+  - One instance of pointers and arrays not being equal
+`someInts == someOtherArray` is legal, but...
+  - This just checks if they point to the same location.
+
+
+#### Function calls and arrays
+```cpp
+void someFunc(int arrayOfInts[]) {
+	// how many elements in arrayOfInts???
+  // need to pass a length parameter.
+}
+```
+
+#### Multidimensional arrays
+- Stored in *row-major* order, like how you read a book.
+  - Lays row 0
+    - Element 0, 1, 2, …
+  - Lays row 1
+    - Element 0,1,2, …
+- How do we access `arr[i][j]`
+  - Skip over `i * size of row`
+  - Skip over `sizeof(element) * j` to get to the cell in that row
+- Consider a `2x3` multidimensional array.
+  - `arr[0][4321]` -> likely segfault
+  - What about: `arr[0][5]`?
+    - There's no 5th element in the 0th row, but...
+    - Row-major order means we actually access `arr[1][2]`
+
+#### Command-line parameters
+- `main()` can be defined as either:
+  - `int main()`
+  - `int main (int argc, char **argv)`
+    - Or: `int main(int argc, char* argv[])`
+    - `argc` = "arg count" = number of arguments
+    - `char **argv` / `char* argv[]` = array of c-strings representing the arguments
+- Note that `argv[0]` is always `./a.out` or whatever your executable
+  - So `argc` is 1 in minimal case
+
+#### Dealing with c-strings
+Just use the `string(char** cstring)` constructor in c++'s string library
+
+## Orders of Growth
+Test program running time at different input sizes
+Want to classify this relationship into an *order* of function
+O(n) defines upper bound on worst case runtime
+Omega(n) defines lower bound on best case runtime
+
+We're looking for a "tight bound"
+O(n) is an upper-bound OR a tight bound
+Omega(n) is a lower-bound OR a tight bound
+Theta(n) is a tight bound
+
+### Classifying functions by their asymptotic complexity
+
+- Asymptotic growth rate or asymptotic order
+  - Ignore constant factors and small inputs
+- Omega, theta, and O are functions that define sets of functions
+  - Omega(g) : functions that grow at least as fast as g
+  - Theta(g) : functions that grow at the same rate as g
+  - O(g): functions that grow no faster than g
+
+### Why do we care?
+- Some data structures are faster than others
+- How do we compare them?
+
+### Algorithm doesn't matter if you have 10 elements
+- A bogosort works on 10 elements.
+- But for big input sizes?
+  - UVa has 100,000 email addresses
+
+### Assumptions
+- Whatever algorithm we're measuring--we have an accurate representation of how long it takes
+- We have some other benchmark function g we're comparing to
+- We're comparing f(n) to g(n) s.t.,
+  - f(n) in O(g(n))
+    - f of in is in the order of functions with worst-case runtime g(n)
+
+### Worst-case scenario
+- We always analyze the worst case runtime
+- It makes no sense to analyze the best case
+  - The average case may not be representative
+
+### Formal defn.
+- f and g functions from nonnegative integers into the positive real numbers
+- For some real constant c > 0 and nonnegative integer constant n_0,
+- O(g) is the set of functions f s.t.
+  - f(n) <= c * g(n) for all n >= n_0
+- Omega(g) is the set of functions f s.t.
+  - f(n) >= c * g(n) for all n >= n_0
+- Theta(g) = O(g) intersect Omega(g)
