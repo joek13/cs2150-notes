@@ -99,3 +99,71 @@ void BST::insert(int x, BinaryNode * & curNode) {
 	}
 }
 ```
+
+### Remarks on time complexity of FIND, INSERT
+In the worst case, an unbalanced binary tree has linear time for both FIND and INSERT
+Balanced trees are logarithmic
+
+#### More operations
+`findMax`: recursively traverse down the right subtree
+`findMin`: recursively traverse down the left subtree
+`remove`:
+  - Find node to be removed
+  - Three cases:
+    - Node has no children
+    - Node has one child
+    - Node has two children
+
+**Remove (no children):** Just remove the node (reclaim memory), adjusting the parent's pointer to NULL
+
+**Remove (one child):** Adjust parent's pointer to child, reclaim memory
+
+**Remove (two children):** Replace node with successor, then remove successor from tree
+  - Remove leftmost value from right subtree
+    - i.e., `findMin` on right subtree
+
+#### BST Height
+an *n*-node BST has maximum depth *n*-1
+- can happen if we insert data in sequence (every inserted value is a new max)
+
+**Claim:** max nodes in a binary tree of height *h* is 2^(*h*+1) - 1
+
+Rearranging this inequality, we have:
+*h* >= log_2(*n*+1) - 1
+
+The "shortest" tree of *n* nodes has a height of, at most, log_2(n+1) - 1 
+
+**"Perfect" binary tree:** a binary tree where all leaves have the same depth, and all nodes have zero or two children (not one)
+- has 2^h leaves
+- has 2^(h+1) - 1 nodes
+- Problem: a perfect binary tree can only hold *n* values where *n* = 2^(*h*+1) - 1
+
+#### Expression trees
+**Expression trees:** internal representation of a mathematical equation
+
+Infix notation = inorder traversal of the expression tree
+Postfix notation = postorder traversal of the expression tree
+Prefix notation = preorder traversal of the expression tree
+
+#### AVL Trees
+*Motivation:* guarantee Theta(logn) running time on find, insert, remove
+Idea: keep tree balanced after each operation
+- After each insertion, rebalance if necessary
+Solution: AVL trees
+
+**Added** ***structure*** **property:**
+- For every node in the tree, the height of the left and right subtrees differ by at most 1
+
+Managed by added field: *balance factor*
+- = *height of right subtree* - *height of left subtree*
+- Can be computed on the fly, but that's very slow
+
+**Balanced trees:**
+- 0 means balanced
+- 1 means right subtree is one longer than left
+- -1 means left is one longer than right
+
+**Unbalanced trees:**
+- 2, -2 means unbalanced
+
+- 3 or -3 are not possible because of our rebalancing property
