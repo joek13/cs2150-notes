@@ -167,3 +167,82 @@ Managed by added field: *balance factor*
 - 2, -2 means unbalanced
 
 - 3 or -3 are not possible because of our rebalancing property
+
+#### AVL Trees: find, insert
+**Find:** same as BST find
+**Insert:** same as BST insert, but might have to "fix" tree (rebalance) after insertion
+
+**Runtime analysis**: Theta(*d*), where *d* is the depth of the node being found/inserted
+Maximum height of an *n*-node AVL tree is log_2(n + 1) - 1
+
+###### AVL Operations
+- For insert or delete, we need to "fix" balance factors
+- Move back up to root, updating balance factors
+  - Path from new node -> root contains the only nodes whose balance factors could change
+- Do tree rotations when balance factors are 2 or -2
+
+- We have to do, at most, two rotations
+
+- Let *x* be the deepest node where imbalance occurs
+
+Four cases where the insert happened:
+1. In the left subtree of the left child of x
+2. In the right subtree of the left child of x
+3. In the left subtree of the right child of x
+4. In the right subtree of the right child of x.
+
+Cases 1 and 4: single rotation
+Cases 2 and 3: double rotation
+
+Take the given AVL tree (minuses/pluses indicate balance factor):
+
+```
+    3-
+   /
+  2
+```
+Now, we insert 1:
+```
+    3--
+   /
+  2-
+ /
+1
+```
+The insert happened in the left subtree of the left child of x, so we singly rotate right
+```
+  2
+ / \
+1   3
+```
+Balance!
+
+### Side-effect of tree rotations
+- At least one node moves "up"
+  - Depth decreases
+- At least one node moves "down"
+  - Depth increases
+
+### Right and left rotation
+
+
+```
+   a                  b
+  / \      right     / \
+  b  Z     ---->    X   a
+ / \       <----       / \
+X   Y       left      Y   Z
+```
+*a* and *b* are __pivot nodes__
+**Right rotation:**
+- Make a b's right child
+- Replace a's left child with b's right child
+**Left rotation:**
+- Make b a's left child
+- Replace b's right child with a's left child
+
+Rotations preserve ordering property
+
+### Double rotation
+- Do a single rotation on the "child"
+- Do a single rotation on the "parent"
