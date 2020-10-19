@@ -253,3 +253,116 @@ xit:
   print s ; print sum
   halt
 ```
+
+## `adit` is kinda crazy
+- Builds an instruction out of data
+- Kind of like dynamic code generation
+  - We build an add instruction
+  - `5000` = `adit` (the add instruction)
+  - `5003` = `add a` (add array base)
+  - `5001` = `add i` (add array index)
+  - Now, the accumulator is an instruction that adds the value at `arr[i]` in memory to the accumulator
+- Self-modifying program
+  - In practice: usually disallowed by modern OSes
+  - ACE exploits
+
+### IBCM Recap
+- Memory
+  - Array of "words" / chunks of data
+  - Data can be program
+  - Program can be data
+- IBCM is Turing-complete
+  - Any program expressible in any programming language can be expressed in IBCM
+    - (With standard caveat about limited memory)
+
+### Tips/reminders
+- Use steps
+1. Pseudocode
+2. Assembly code
+3. Trace the assembly
+4. Translate to machine code
+5. Run in the simulator to verify that it works
+
+### What's missing from IBCM?
+- More registers
+- Comments ?
+- Multiplication / division
+- Floating point
+- Bigger address space
+- What else??
+
+## Splay trees
+Self-balancing binary-search tree
+
+**New operation:** ***splay***
+Splay x:
+1. Find x
+2. Perform rotations until x is root
+3. Return root
+Not balanced in our familiar sense
+
+What if we splay something that doesn't exist?
+- When find returns nothing, we splay whatever the most recent node we saw was traversing
+- Return root anyway
+
+
+### What's the point?
+Doesn't balance like we're used to
+...but it keeps recently used values near the top of the tree
+- Makes splay trees great for caches
+- ...but not good if your accesses are uniform
+
+(Easier implementation than red-black or AVL trees)
+
+Insert x:
+Splay x
+Add x at appropriate location
+
+Remove x:
+Splay x
+Remove x
+
+Main operation: splaying
+
+## Tree operation time complexity
+How long does a splay take?
+
+Theta(h), where h is the height of the tree
+...not good (linear time = linked list??)
+
+But a splay tree is Theta(logn) amortized time
+
+## Vectors 
+- Consider insert:
+  - worst case is that you have to double the size of the array (from n to 2n), and then copy the elements
+  - Linear time!
+- This doesn't happen that often... what about *amortized* time? 
+
+Consider a vector with 100 reserved spaces
+Inserting n elements requires about n-100 copies
+The # of copies is proportional to n
+Theta(n) worst case,
+but Theta(1) amortized when executing many operations
+
+### Applications
+Trees are fast -- so when would we not want to use them?
+- When there's no natural ordering
+- When we want less complexity
+- when we want Theta(1) on retrieves
+- When we want Theta(1) for all operations
+
+### Program tree
+- Tree that represents the statements and their scope
+- Parse tree / abstract syntax tree before compilation
+
+
+- We can compare program trees, which are resitant to
+  - Changed variable names
+  - Comments
+  - Function order
+
+- "A system for detecting software plagiarism"
+- Load up all programs...
+  - and do n * (n - 1) = n^2 comparisons
+
+- Displays most similar programs
