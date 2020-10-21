@@ -189,3 +189,165 @@ inc <mem>
 ```
 `idiv`
 - Divide 128-bit integer in RDX:RAX by operand
+  - Remember to zero out `rdx` so you  don't get "some oddball 128 bit number"
+
+## Logical instructions
+`and, or, xor`
+```
+and <reg>, <reg>
+and <reg>, <mem>
+and <mem>, <reg>
+```
+e.g.,
+```
+and rax, 0fH
+xor rcx, rcx
+```
+`xor`-ing a register with itself is a very fast way to zero it out
+
+## Control instructions: jumps
+- `jmp <label>`
+  - go to instruction address specified by label
+- `cmp`
+  - Must be done prior to a conditional jump
+  - `cmp <op1> <op2>`
+    - `op1` can be a register or memory (variable)
+    - `op2` can be a register, memory (variable), or a constant
+    - You can't access memory twice
+  - Sets the *machine status word*
+- Conditional jumps: `j*` where `*` is some condition
+  - Uses the machine status word, which was set via `cmp`
+    - Holds info about the results of the last instruction
+  - There are many values for `*`
+  - Example: `je <label>`
+    - Jumps when condition code "equal" is set
+    - Others: `jne`, `jz`, `jg`, `jge`, `jl`, `jle`, `js`, etc.
+
+## Control instructions: call and return
+`call <label>`
+- Subroutine call
+- Pushes address of the *next* instruction onto the stack, then unconditionally jumps to the label
+`ret`
+- Subroutine return
+- Pops the return address from the stack, then jumps to that address
+
+### x86 Conventions
+Two-argument instructions are `instr <dest>, <src>`
+
+## Code in C and Assembly
+**C/C++:**
+```cpp
+int n = 5;
+int i = 1;
+int sum = 0;
+while(i <= n) {
+	sum += i;
+	i++;
+}
+```
+**x86 Assembly:**
+```asm
+section .data
+n    DQ 5
+i    DQ 1
+sum  DQ 0
+
+section .text
+loop:    mov rcx, [i]
+         cmp rcx, [n]
+         jg endOfLoop
+				 add [sum], rcx
+				 inc qword [i]
+				 jmp loop
+endOfLoop:
+```
+**Sections:**
+- `.data`: declare variables, etc.
+- `.text`: instructions that are executed
+
+Note on `inc qword [i]`:
+- For registers, it's obvious what size value we are incrementing based on the register name `rax` (is always 8 bytes)
+- This is not the case for variables, which are just addresses in memory
+- So we have to tell the assembler what size value we're incrementing if it's a variable
+
+## Calling conventions
+- What is a calling convention?
+  - A set of rules/expectations between functions
+    - How and where are parameters passed?
+    - What registers does the calling function expected to be preserved?
+    - Where should local variables be stored?
+    - How/where should results be returned from functions?
+- Why?
+  - Separate programmers can share code more easily and develop libraries
+
+### C Calling Convention
+- Why C's calling convention?
+  - It's important
+  - Used with both C and C++ code
+  - Can enable calling C library functions from assembly code
+    - Or other languages, too
+
+## C Calling Convention
+- Uses hardware stack
+- Stack *grows down*, toward the lower memory address
+- x86 instructions used for calling conventions
+  - `pop`
+  - `push`
+  - `call`
+  - `ret`
+- Using a stack for calling convention is implemented on most processors. Why?
+  - Recursion!
+
+- Answers to questions:
+  - Parameters: passed in registers
+    - If there are more than 6 parameters, then params 7 to *n* are placed on stack
+    - If passing a large object, then it's placed on the stack (doesn't fit in a 64-bit register)
+  - Registers: saved on the stack
+  - Local variables: placed in memory on the stack
+    - Or in registers if room is available
+  - Return value: rax register
+- Two sets of rules
+  - Caller: the function which calls another function
+  - Callee: the function which is called by another function
+
+## Register usage
+One register is used for return value: `rax`
+Six registers are used for parameter passing: `rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`
+Two registers may be modified by the callee: `r10` and `r11`
+- If the caller wants to save these values, they need to be saved by pushing them onto the stack
+- Actually, these two have specific uses depending on the language, so they're often not used for this reason
+Six registers may not be modified by subroutine callee: `rbx`, `rbp`, `r12` to `r15`
+- If it wants to use them, the subroutine must push them onto the stack and restore them before returning
+`rsp` should almost never be modified directly, as it points to the top of the stack
+
+### Varying number of parameters
+- Method overloading
+  - `Foo::bar(int)` and `Foo::bar(int, float)`
+  - Compiler will consider them different subroutines
+- Default parameters
+  - `Foo::bar (int x = 3)`
+  - Also considered different subroutines
+- Variable arguments
+  - Coming soon...
+
+### Variable # of arguments in C/C++
+
+```cpp
+double average(int num, ...) {
+	// compute the average of the arguments
+}
+```
+
+
+*Is this actually used?* Yea, in `printf` which takes a variable number of arguments for its format parameters
+
+
+## Caller rules
+- "Prologue"
+  - Tasks to take care of before calling a subroutine
+- Call the subroutine with the `call` opcode
+- "Epilogue"
+  - Tasks to complete after call returns
+
+## Caller rules / responsibilities
+
