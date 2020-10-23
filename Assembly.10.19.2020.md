@@ -350,4 +350,106 @@ double average(int num, ...) {
   - Tasks to complete after call returns
 
 ## Caller rules / responsibilities
+- *Before* calling the function
+  - Save registers that might be needed after the call (r10, r11, or param registers if applicable)
+  - Place parameters in registers / on stack
+    - rdi, rsi, rdx, rcx, r8, r9
+    - Then push extra parameters on stack
+- *Call* the function
+  - `call` instruction places return address on stack
+- *After* the called function returns
+  - Remove parameters from stack (if applicable)
+  - Restore saved registers (if applicable)
 
+### Caller rules - "prologue"
+1. Caller-saved registers
+  - These registers must be saved if the caller wants their values preserved.
+  - r10, r11, and registers used for paremeters
+2. Parameters
+  - First 6 are passed in through registers
+  - Params 7 to n pushed in reverse order (last parameter first) onto stack
+3. Call the subroutine
+  - Use the `call` instruction
+    - Pushes the return address onto the stack and branches to the subroutine
+
+### Caller rules - "epilogue"
+"Cleanup time"
+- Remove parameters
+  - Parameters pushed onto the stack must be removed
+  - What do we do with them?
+- Return value
+  - If any, held in rax
+- Restore caller-saved registers
+  - Pop them off the stack, restore their value
+
+## Caller rules example
+```asm
+push rdi ; rdi will be a param, so save it
+mov rdi, rax ; put first param in rdi
+mov rsi, 123 ; put second param in rsi
+mov rdx, [var] ; put third param in rdx
+
+call myFunc ; call function
+
+pop rdi ; restore saved rdi value
+
+; return value of myFunc is now available in rax
+```
+
+## Callee rules
+**Prologue:**
+1. Allocate local variables
+  - Make space on stack (decrement stack ponter)
+
+*This is one of the only times we directly modify the stack pointer.*
+
+***PSA: You might see:***
+```
+push rbp
+mov rbp, rsp
+...
+pop rbp
+```
+Need to compile with `-fomit-frame-pointer`
+
+**Prologue, continue:**
+3. Save callee-save registers
+  - rbx, rbp, r12 to r15
+  - Only need to do this if you want these extra registers
+
+Then, perform the body of the function
+
+**Epilogue:**
+1. Return value saved to rax
+2. Restore callee-saved registers
+  - Pop from stack (in reverse order)
+3. Deallocate local variables
+  - `add rsp, 8` where `8` is replaced with size of your stack frame (size of allocated locals)
+4. Return
+  - `ret` - make sure you properly manage stack so that ret doesn't pop an invalid address
+
+```
+myFunc:
+
+sub rsp, 8 ; room for 64-bit local var
+push rbx ; push 8 byte (rsp -= 8)
+push rbp ; push 8 byte (rsp -= 8)
+; [rsp + 16] now represents location of local var
+
+; load parameters into rax, rbp, rbx
+mov rax, rdi
+mov rbp, rsi
+mov rbx, rdx
+
+; put rbx into local var
+mov [rsp+16], rbx
+; add rbp to local var
+add [rsp+16], rbp
+; copy into return value
+mov rax, [rsp+16]
+
+pop rbp ; restore value of rbp
+pop rbx ; restore value of rbx
+add rsp, 8 ; deallocate local vars
+ret ; pop top value from stack and jump
+```
