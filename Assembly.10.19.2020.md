@@ -539,3 +539,15 @@ Output of `clang++ -m64 -S abs.cpp -o abs_non_intel.s` is using AT&T syntax
 We learned Intel syntax
 So we use:
 `clang++ -m64 -mllvm --x86-asm-syntax=intel -S -fomit-frame-pointer test_abs.cpp -o test_abs.s`
+
+## Manipulating `int`s using assembly
+Make sure you use `eax` instead of `rax`
+`int`s are 4 bytes - `rax` is 8 bytes
+`eax` accesses lower 4 bytes of `rax`
+
+## I/O is *weird* in assembly when generated from c++
+Has to do with C++ *name mangling*, which ensures that each function overload has its own identifier.. ugly ugly ugly!
+- Many different subroutines could have the same name, so our jump targets for subroutines use a naming scheme
+
+C translates much more cleanly into assembly
+
