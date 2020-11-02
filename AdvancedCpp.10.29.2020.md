@@ -192,3 +192,52 @@ In C++, replicated is the default. Shared inheritance can be specified by using 
 
 ## C++11 Standard
 ### Move constructors
+Assigning `y` to `x` when `y` is going out of scope
+- Instead of deep copying `y`, just set `x` to point to `y`, and remember not to drop `y` when it goes out of scope.
+
+### Uniform initialization
+- Clears up ambiguity between function declarations and empty constructors, we can use curly braces just like parentheses to call constructors
+
+### Range-based for loops
+```
+int my_array[5] = {1,2,3,4,5};
+for(int &x : my_array) {
+  x *= 2;
+}
+```
+The compiler has to be able to find out how large the array is for this to work.
+
+### New, optional, function syntax
+```cpp
+struct SomeStruct {
+  auto func_name(int x, int y) -> int; // allow you to specify return value at the end
+};
+```
+- Resolves some problems with qualifiers
+
+### New `NULL`
+- `NULL` for pointers was really zero
+  - Type checking was hard, because you are checking pointer against an int
+- Now we have `nullptr`, which types better with pointers
+
+### Smart pointers
+- New pointer just dropped
+- Different than regular points or references
+- Like regular pointers, but they include memory management algorithms
+  - `auto_ptr` indicates that caller must deallocate (normal pointer)
+  - `unique_ptr` forces only one pointer to point to that object
+  - `shared_ptr` does reference counting, and will be deallocated when nobody points to it anymore
+  - `weak_ptr` is like `shared_ptr`, but does not modify the reference count; used to handle circular references in reference counting
+    - e.g., `Parent` has shared ptr to `Child`, who has shared ptr to its `Parent`
+      - Reference count will never hit zero--uh oh!
+      - Solution: make `Child`'s parent pointer weak
+
+### Misc.
+- Better handling of multitasking/multithreading
+- New type drop: `long long int` guaranteed to be >= 64 bits
+- Static assertions for debugging
+- Better STL hashtable
+
+## Takeaway
+- Modern C++ is really, really confusing
+To use these features, use the `-std=c++11` flag
