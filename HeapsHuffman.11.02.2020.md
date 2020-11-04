@@ -67,7 +67,45 @@ So the min is always at the root
 #### Insert
 - Insert at rightmost of bottom row -- in the array, first empty spot
 - Repeatedly compare with parent, swap if misordered
+- Worst-case: `logn` runtime
+- Expected runtime: *constant*
+  - Half of the nodes are leaves, so half of the inserts will only move up one level
+  - Quarter are one level above leaves, so a quarter of inserts will only move up two levels
+  - One eighth require moving up three levels
+  - etc...
+  - 1/2 * 1 + 1/4 * 2 + 1/8 * 3 + … = 2
+  - **Important:** This is not amortized: if you're always inserting a minimum, you'll always trigger worst case
 
 #### Delete
 - Remove root node, take rightmost leaf and place it at root
 - Repeatedly replace new root node with smaller of its children
+- Worst-case: `logn` runtime
+- We always need to swap with the smaller of the two children:
+  - Consider:
+```
+   25    <--- Needs to be percolated!
+  /  \
+ 10  20
+
+   20
+  /  \
+ 10  25  <--- If we swap with greater child, 20 > 10, and the ordering property is violated.
+```
+
+
+## Other heap operations
+`decreaseKey(processID, amount)`: decrease priority value, making a process more important, percolate up
+`increaseKey(processID, amount)`: increase priority value, making a process less important, percolate down
+`remove(processID)`: remove a process, move to top, then delete
+  - `decreaseKey(processID, -infinity)`
+  - `deleteMin()`
+
+Worst case runtime for all of these is `Theta(n)` because we have to search and find the element with a given `processID`
+(We can optimize this, because perhaps process records have pointers to their entries in the binary heap)
+
+## Heapsort
+- Insert `n` elements, then remove `n` elements
+- Each one has an insertion time of `logn`
+- And then removal time of `logn`
+- Therefore `Theta(nlogn)`
+- But this is an unstable sort, so it's not used as often as mergesort
