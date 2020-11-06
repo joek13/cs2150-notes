@@ -109,3 +109,88 @@ Worst case runtime for all of these is `Theta(n)` because we have to search and 
 - And then removal time of `logn`
 - Therefore `Theta(nlogn)`
 - But this is an unstable sort, so it's not used as often as mergesort
+
+# File Compression
+### Motivation
+- Disk space and network bandwidth cost money
+- Transfer happens faster when there's less info
+
+What is a file, anyway?
+- "Named collection of information" -> could be c++ source, application executables, images, audio, etc.
+
+Which formats need to be the same, byte-for-byte, when we decompress?
+
+```
+X --> [ ENCODER ] --> Y --> [ DECODER] --> X'
+```
+**Lossless compression:** X = X'
+**Lossy compression:** X != X'
+**Compression ratio:** |X| / |Y| ( size of x / size of y)
+
+## Lossy compression
+Some data is lost, but not "noticeable" data
+**Standards:**
+- JPEG - lossy image compression
+- MP3, Ogg vorbis, AAC, etc. - lossy audio
+- MPEG, as well as most video codecs - lossy audio and video
+
+Compression ratios of 10:1 are possible
+
+JPEG has variable quality
+- Abuses a feature of the human eyes to "throw out" information we won't notice
+- Low frequency information is hard to detect, we're much more sensitive to high frequency information (edges, stripes, many colors)
+
+## Lossless compression
+- No data is lost
+- Standards:
+  - Gzip, unix compress, zip, Morse code
+  - PNG image formats
+  - Run-length encoding (RLE)
+- Compression ratios more like 4:1
+
+## Lossless compression of text
+- ASCII - 8 bits per character
+- Example: "hello there"
+  - = 88 bits
+
+### Huffman coding
+- Uses frequencies of symbols in a string to build a prefix code
+- The more frequent a character is, the fewer bits we'll use to represent it
+- **Prefix code:** no code in our encoding is a prefix of another code
+
+We build a binary tree using the code
+`0` is left, `1` is right
+Prefix code provide directions to our leaf
+Our tree is a full binary tree (Node x => Leaf x OR (HasLeft x AND HasRight x))
+Internal nodes are always empty
+Leaf nodes represent characters
+
+Pseudocode for decoding:
+```
+while not done:
+  node = root
+  while True:
+    if message.next() == '1':
+      node = node.right
+    else:
+      node = node.left
+    
+    if node.right == None and node.left == None:
+      break
+  print(node.char)
+```
+
+"Cost" of a Huffman code: Sum(frequency of character * length of code for character)
+
+- ASCII: 8 bits per character
+- "Straight" encoding of four symbols: 2 bits per char
+- Our Huffman code: 1.85 bits per character
+
+### Compression
+1. Determine frequencies of characters stored in the source file
+  - Read source file, store character frequencies in a *min-heap*
+2. Build a tree of prefix codes that determines the unique bit codes for each character
+3. Write the prefix codes or code tree to the output file
+4. Re-read the source file and for each character, write its prefix code
+
+We must write the prefix code/tree to the output file with the encoded text
