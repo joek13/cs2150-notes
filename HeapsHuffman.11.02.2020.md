@@ -194,3 +194,44 @@ while not done:
 4. Re-read the source file and for each character, write its prefix code
 
 We must write the prefix code/tree to the output file with the encoded text
+
+## Encoding
+- First file pass: count distinct characters and their frequencies
+- Turn each character into a `HuffmanNode` (char + frequency + L/R pointer)
+- Place each `HuffmanNode` into a min-heap
+- While heap has more than one element:
+  - Grab minimum element, twice
+  - Create new `HuffmanNode` with left pointer to one node and right pointer to other, frequency equal to sum of each node's frequency
+  - Put new `HuffmanNode` back into heap
+- Convert your Huffman tree to a mapping from characters -> prefix codes
+- Second file pass: map each character to its prefix code
+
+Yields a few desirable traits:
+- Least frequent characters pulled first, placed at bottom of tree ( = longest codes)
+- Most frequent characters pulled last, placed near top of tree ( = shortest codes)
+
+Now, we have a full binary tree where the paths to each leaf represent a code for that leaf's character
+How do we convert to a mapping?
+
+
+# Back to priority queues
+- Heaps are distinct from priority queues; it just so happens that heaps are very good realizers of priority queues
+
+## Time complexities
+- Insert: `logn`
+  - Average, however, is `O(1)`
+- Delete: `logn`
+- Create heap from unsorted vector: `nlogn`
+
+### Creating heap from an unsorted vector
+```cpp
+binary_heap::binary_heap(vector<int> vec) {
+	heap = vec;
+	heap.push_back(heap[0]); // hack: we don't use 0th index, so make the 0th element the last one
+	heap[0] = 0;
+	for(int i = heap_size / 2; i > 0; i-- ) {
+		percolateDown(i); // NOTE: we only percolate down i/2th .. 1st elements, because the last size/2 elements are leaves and have nowhere to percolate
+	}
+}
+```
+Worst-case: `O(nlogn)`
