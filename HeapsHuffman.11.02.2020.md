@@ -186,7 +186,7 @@ while not done:
 - "Straight" encoding of four symbols: 2 bits per char
 - Our Huffman code: 1.85 bits per character
 
-### Compression
+#### Compression
 1. Determine frequencies of characters stored in the source file
   - Read source file, store character frequencies in a *min-heap*
 2. Build a tree of prefix codes that determines the unique bit codes for each character

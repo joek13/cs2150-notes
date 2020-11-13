@@ -85,6 +85,78 @@ Practical considerations: lots of dynamic allocation, lots of pointer dereferenc
 - indegree of v: number of edges (*,v) -- number of incoming edges
 
 How to do topological sort?
-- Look at nodes with indegree 0
-- Remove all outgoing edges
+- Look for a node with indegree 0
+- Remove all outgoing edges from that node
 - Print out the node / emit it / store in some datastructure
+
+Many graphs have multiple valid topological sorts
+
+Remember, DAG's A = **acyclic**, so we can't have cycles
+
+Naive solution is `Theta(v^2)` (*v* is number of vertices)
+  - For every vertex:
+    - Find vertex with indegree zero
+    - Decrement indegree of all of its neighbors
+
+Observation: after the loop runs, all the nodes with indegree zero will have been neighbors with *v*
+Optimization: maintain a queue of nodes with indegree zero
+- First time around, we have to populate it by scanning every node
+- After that, we can just check if `indegree == 0` when we decrement neighbors' indegrees
+  - If so, enqueue it
+
+*So what?* Worst-case runtime is still `Theta(v^2)`
+
+Another optimization: the loop that decrements the indegree of neighbor nodes runs, in total, exactly *e* times
+
+## Shortest Path Algorithms
+### Applications
+- Map routing
+- '6 degrees of separation'
+- Internet packet routing
+- Puzzle answers (Rubik's cube)
+
+### Three types of shortest-path
+- Single-pair : you have (source, destination), and you want to get from (source, destination) as fast as possible
+- Single-source : from one particular node, what's the shortest path to every other node in the graph?
+- All-pairs : what's the shortest path from every node to every other node?
+- Travelling salesperson : coming soon
+
+### Single-source shortest path
+Given a graph G = (V,E) and a single distinguished vertex s, find the shortest weighted path from s to every other vertex in G
+
+#### Special case: unweighted shortest path
+Special case of the weighted problem where all weights are 1
+Solution: breadth-first search
+(Useful for Internet routing, where we care more about the number of hops than the length of wire between them)
+
+**Breadth-first search:**
+- s->dist = 0
+- Enqueue `s`
+- While queue isn't empty:
+  - Dequeue node
+  - For each neighbor n of node:
+    - If n->dist == INFINITY
+      - n->backlink = node
+      - n->dist = node->dist + 1;
+      - enqueue(n)
+
+Adapting single-source to single-pair:
+  Run the single-source algorithm, just follow the backlinks from your destination node
+
+#### Weighted shortest path
+- Assuming right now: no negative weight edges
+- Group of set algorithms: maintain two sets, "known" and "unknown"
+- "Known" is the set of vertices we currently know the shortest path to
+- "Unknown" is the set of vertices we currently do not know the shortest path to
+
+#### Dijkstra's Algorithm
+- Initialize each vertex's distance as infinity
+- Start at a given vertex s
+  - Update s's distance to be zero
+- Repeat:
+  - Pick the next unknown vertex with the shortest distance to be the next v
+    - If no more vertices are unknown, terminate loop
+  - Mark v as known
+  - For each edge from v to adjacent unknown vertices w
+    - If the total distance to w is less than the current distance to w
+      - Update w's distance and the path to w
