@@ -149,7 +149,7 @@ Adapting single-source to single-pair:
 - "Known" is the set of vertices we currently know the shortest path to
 - "Unknown" is the set of vertices we currently do not know the shortest path to
 
-#### Dijkstra's Algorithm
+#### Dijkstra's algorithm
 - Initialize each vertex's distance as infinity
 - Start at a given vertex s
   - Update s's distance to be zero
@@ -160,3 +160,68 @@ Adapting single-source to single-pair:
   - For each edge from v to adjacent unknown vertices w
     - If the total distance to w is less than the current distance to w
       - Update w's distance and the path to w
+
+##### Runtime analysis of Dijkstra's algorithm
+Assume the graph is connected
+- Runs v-times to perform a search
+- Runs v times in total
+- Worst-case Runtime: `Theta(v^2)`
+
+- Optimizations we can do:
+  - Use adjacency lists and heaps
+  - Running time decreases to `Theta(e + v logv)`
+    - Which simplifies to `Theta(elogv)
+
+### Negative-cost edges
+- Not always sensible. But sometimes it is
+- What about negative-cost cycles??
+  - Do something over-and-over to keep subtracting cost
+
+### More on shortest path
+- How do we adapt single-source to shortest-path?
+  - Just break the loop once we see the destination enter the known set
+
+### More on map routing
+- How do we route a trip to Seattle?
+  - Don't worry about side roads (at least, at first)
+  - Maps represent 3 "types" of roads
+    - Side roads (maybe just within your ZIP code)
+    - Main roads (maybe just within your state)
+    - Highway (maybe just within your continent)
+  - Break the problem up
+    - Assume you start on a "side road"
+    - Transition to a "main road"
+    - Transition to a "highway"
+    - Get as close to your destination as possible using the highway system
+    - Transition to a main road and get as close as possible to destination
+    - Transition to a side road and get to your destination
+  - Each of these subgraphs are way more tractable
+- What about Waze?
+  - Estimates speed based on crowdsourced data
+  - "Re-runs" algorithm at will to update
+
+### Travelling Salesperson Problem
+- Given a number of cities and the costs of travelling from any city to any other city, what is the least-cost simple cycle that visits every city?
+- Really important problem for
+  - UPS, Federal Express, USPS
+  - Any transport delivery system
+  - Cost = distance because more fuel is used
+- Assume graph is fully connected
+
+- Naive solution: `Theta((n-1)!)`
+
+#### Analysis
+- Hamiltonian path: a path in a connected graph that visits every vertex exactly one
+  - Hamiltonian cycle: a Hamiltonian path that ends where it started (one that is also a cycle)
+- The traveling salesperson problem is thus to find the least-weight Hamiltonian path in a connected, weighted graph
+- The size of the solution space is `Theta((n-1)! / 2)`
+  - Because reversing a cycle is exactly identical in terms of cost
+  - So half of the solution space is redundant
+  - But this doesn't affect the running time
+
+- TSP is known *NP-Complete*
+- No known efficient solution beyond trying every possible
+- But there are ways to get a somewhat efficient solution (a *heuristic*)
+  - It might just not be the *most* efficient path
+- What's usually the least expensive way to get between two US cities?
+  - And is that significantly slower than the *best* algorithm?
