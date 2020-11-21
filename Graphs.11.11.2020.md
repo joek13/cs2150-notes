@@ -225,3 +225,58 @@ Assume the graph is connected
   - It might just not be the *most* efficient path
 - What's usually the least expensive way to get between two US cities?
   - And is that significantly slower than the *best* algorithm?
+
+
+#### Minimum spanning tree (MST)
+**Note:** we can view trees as a kind of graph without cycles
+
+- Suppose you have some network - transport system
+  - Set of cities alongside roads, rail lines, air corridors connecting them
+- Say you start from somewhere and want to get paths to everywhere else
+  - Create a tree that spans the entire graph
+
+A *spanning tree* of a graph *G* is a subgraph of *G* that contains every vertex of *G* and is a tree
+- Any connected graph has a spanning tree
+- Any two spanning trees of a graph have the same number of nodes
+- Construct a spanning tree
+  - Start with the graph
+  - Remove an edge from each cycle
+  - What remains has the same set of vertices but is a tree
+
+#### Minimal spanning tree
+- Spanning trees are simple
+- But what if the edges have weights?
+- Each tree has a different total weight
+- Minimal-weight spanning tree: spanning tree with the minimal total weight
+
+Formally:
+- Given a connected and undirected graph G = (V, E), find a graph G' = (V, E') such that:
+  - E' is a subset of E
+  - |E'| = |V| - 1
+  - G' is connected
+  - Sum of weights along edges in E' is minimal
+
+#### Generic minimal spanning tree album
+##### Prim's algorithm
+- Idea: grow a tree by adding an edge to the "known" vertices from the "unknown" vertices. Pick the edge with the smallest weight.
+
+- Pick one node as the root.
+- Incrementally add edges that connect a "new" vertex to the tree
+- Pick the edge (u, v) where:
+  - u is in the tree, v is not, AND
+  - Where the edge weight is the smallest of all edges (for whom u is in the tree and v is not)
+
+#### Analysis
+Runtime is same as Dijkstra's: `Theta(e logv)`
+- Correctness:
+  - Suppose we have a partially built tree that we know is contained in some minimum spanning tree T
+  - Let (u,v) in E, where u is known and v is unknown and has minimal cost
+  - Unioning in (u,v) will always find the smallest weight
+
+### Kruskal's MST Algorithm
+- Look at every single edge on its own
+  - Pick the edge of minimum weight that doesn't connect two already-unconnected nodes
+    - Optimization: we can check this by "coloring" subgraphs
+  - Add that edge to our "forest", merging two trees together
+
+Runtime, when optimized: `Theta(e logv)`
