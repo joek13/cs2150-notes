@@ -46,6 +46,7 @@ A binary heap is an *almost complete* binary tree, which is a binary tree that i
 
 Almost complete binary trees can be stored in an array
 
+(We have a dummy 0th indexed element)
 From node *i*:
 - Left child: 2*i*
 - Right child: 2*i* + 1

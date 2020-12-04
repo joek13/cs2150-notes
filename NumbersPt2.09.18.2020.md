@@ -44,7 +44,7 @@ Most common floating point spec
 - Mantissa
   - bits $b_1$ through $b_23$
   - The mantissa, in base 10, is equal to:
-    - 1.0 + the sum from i = 1 to 23 of $b_i$ over $2^i$
+    - 1.0 + the sum from i = 1 to 23 of $b_i$ over $2^(-i)$
     - Mantissa encodes everything *after* the decimal, which is why we add 1.0
     - **Question:** If all bits are 1, what do we get?
       - 1 + (almost)1 = (almost 2) = 1.99999999 (recognize it?)

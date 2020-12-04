@@ -275,7 +275,7 @@ Runtime is same as Dijkstra's: `Theta(e logv)`
 
 ### Kruskal's MST Algorithm
 - Look at every single edge on its own
-  - Pick the edge of minimum weight that doesn't connect two already-unconnected nodes
+  - Pick the edge of minimum weight that doesn't connect two already-connected nodes
     - Optimization: we can check this by "coloring" subgraphs
   - Add that edge to our "forest", merging two trees together
 
